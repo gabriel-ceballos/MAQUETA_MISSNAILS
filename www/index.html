@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="theme-color" content="#E65A92">
+<title>MISS NAILS · Mi cuenta · Preview</title>
+
+<style>
+:root{
+  --rosa:#E65A92;
+  --rosa-oscuro:#C93E77;
+  --rosa-claro:#FFF4F8;
+  --fondo:#F7F7F7;
+  --texto:#292929;
+  --gris:#707070;
+  --borde:#E6E6E6;
+  --blanco:#fff;
+  --safe-top:env(safe-area-inset-top, 0px);
+  --safe-right:env(safe-area-inset-right, 0px);
+  --safe-bottom:env(safe-area-inset-bottom, 0px);
+  --safe-left:env(safe-area-inset-left, 0px);
+}
+
+*{box-sizing:border-box}
+
+html{
+  margin:0;
+  min-height:100%;
+  background:var(--fondo);
+}
+
+body{
+  margin:0;
+  min-height:100%;
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+  color:var(--texto);
+  background:var(--fondo);
+}
+
+button{font:inherit}
+
+.mn-page{
+  width:min(100%, 720px);
+  min-height:100dvh;
+  margin:0 auto;
+  padding:
+    calc(18px + var(--safe-top))
+    max(12px, calc(18px + var(--safe-right)))
+    calc(28px + var(--safe-bottom))
+    max(12px, calc(18px + var(--safe-left)));
+  display:flex;
+  flex-direction:column;
+  container-type:inline-size;
+}
+
+/*
+  La tarjeta de perfil permanece visible mientras el contenido
+  inferior se desplaza cuando la altura disponible no alcanza.
+  No se crea una segunda pantalla ni un segundo layout.
+*/
+.mn-profile{
+  position:sticky;
+  top:var(--safe-top);
+  z-index:10;
+  background:var(--blanco);
+  border:1px solid var(--borde);
+  border-radius:16px;
+  padding:18px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:0 0 24px;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+}
+
+/* Fondo del área sticky para evitar transparencias al desplazarse. */
+.mn-profile::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:
+    calc(-1 * var(--safe-top))
+    -1px
+    -1px
+    -1px;
+  background:var(--fondo);
+  border-radius:inherit;
+}
+
+.avatar{
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(145deg,#f7b2cd,#E65A92);
+  color:#fff;
+  font-size:19px;
+  font-weight:800;
+  flex:0 0 auto;
+}
+
+.profile-copy{min-width:0}
+
+.profile-copy h2{
+  margin:0 0 3px;
+  font-size:18px;
+  font-weight:700;
+}
+
+.profile-copy p{
+  margin:0;
+  color:var(--gris);
+  font-size:13px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.profile-action{
+  margin-left:auto;
+  border:0;
+  background:var(--rosa-claro);
+  color:var(--rosa-oscuro);
+  padding:9px 12px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.account-list{
+  background:var(--blanco);
+  border-top:1px solid var(--borde);
+  border-bottom:1px solid var(--borde);
+}
+
+.account-row{
+  min-height:64px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:0 4px;
+  text-decoration:none;
+  color:inherit;
+  border-bottom:1px solid var(--borde);
+}
+
+.account-row:last-child{border-bottom:0}
+
+.account-row:hover{background:#fcfcfc}
+
+.row-icon{
+  width:30px;
+  flex:0 0 30px;
+  text-align:center;
+  font-size:22px;
+  line-height:1;
+  color:#303030;
+}
+
+.row-label{
+  font-size:16px;
+  font-weight:600;
+  line-height:1.2;
+}
+
+.row-spacer{flex:1}
+
+.row-count{
+  min-width:24px;
+  height:24px;
+  padding:0 7px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#E94358;
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+}
+
+.row-arrow{
+  font-size:22px;
+  color:#A1A1A1;
+  margin-left:2px;
+}
+
+.mn-bottom{
+  margin-top:auto;
+  padding:18px 4px 0;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.logout{
+  border:1px solid #ead8df;
+  background:#fff;
+  color:#b23c6c;
+  border-radius:10px;
+  padding:9px 13px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.preview-note{
+  margin-top:20px;
+  padding:11px 14px;
+  border:1px dashed #e5c8d5;
+  background:#fff8fb;
+  color:#8e536b;
+  border-radius:12px;
+  font-size:11px;
+  line-height:1.45;
+}
+
+/*
+  Adaptación por espacio real del contenedor.
+  No identifica iPhone, Android, Chrome, Safari, etc.
+  El mismo HTML se reacomoda según el ancho disponible.
+*/
+@container (max-width:520px){
+  .mn-profile{
+    padding:15px;
+    border-radius:14px;
+    margin-bottom:20px;
+  }
+
+  .avatar{
+    width:52px;
+    height:52px;
+    font-size:18px;
+  }
+
+  .profile-copy h2{font-size:17px}
+  .profile-copy p{font-size:12px}
+
+  .profile-action{
+    font-size:11px;
+    padding:8px 9px;
+  }
+
+  .account-row{
+    min-height:60px;
+    gap:12px;
+    padding:0 2px;
+  }
+
+  .row-icon{
+    width:28px;
+    flex-basis:28px;
+    font-size:20px;
+  }
+
+  .row-label{font-size:15px}
+}
+
+/* Pantallas muy estrechas: evita que el botón y el nombre compitan. */
+@container (max-width:380px){
+  .mn-profile{
+    gap:10px;
+    padding:13px;
+  }
+
+  .avatar{
+    width:46px;
+    height:46px;
+    font-size:16px;
+  }
+
+  .profile-copy h2{font-size:16px}
+
+  .profile-action{
+    padding:7px 8px;
+    font-size:10px;
+  }
+
+  .account-row{
+    min-height:56px;
+    gap:10px;
+  }
+
+  .row-label{font-size:14px}
+}
+
+/* Pantallas altas: conserva el aire y el footer abajo sin forzar scroll. */
+@media (min-height:760px){
+  .mn-page{
+    padding-top:calc(22px + var(--safe-top));
+  }
+}
+
+/* Pantallas horizontales muy bajas: compacta sin crear otro diseño. */
+@media (orientation:landscape) and (max-height:600px){
+  .mn-page{
+    padding-top:calc(10px + var(--safe-top));
+    padding-bottom:calc(16px + var(--safe-bottom));
+  }
+
+  .mn-profile{
+    padding:12px 15px;
+    margin-bottom:14px;
+  }
+
+  .avatar{
+    width:44px;
+    height:44px;
+    font-size:16px;
+  }
+
+  .account-row{min-height:52px}
+
+  .mn-bottom{padding-top:14px}
+}
+</style>
+</head>
+
+<body>
+<main class="mn-page">
+
+  <!-- Única tarjeta inicial: permanece visible mientras se desplaza el contenido inferior. -->
+  <section class="mn-profile">
+    <div class="avatar">GC</div>
+    <div class="profile-copy">
+      <h2>Gabriel Ceballos</h2>
+      <p>gabriel@ejemplo.com</p>
+    </div>
+    <button class="profile-action">Editar perfil</button>
+  </section>
+
+  <!-- Lista única: el flujo continúa normalmente y hace scroll cuando la altura no alcanza. -->
+  <section class="account-list">
+
+    <a class="account-row" href="#">
+      <span class="row-icon">🛍</span>
+      <span class="row-label">Mis pedidos</span>
+      <span class="row-spacer"></span>
+      <span class="row-count">2</span>
+      <span class="row-arrow">›</span>
+    </a>
+
+    <a class="account-row" href="#">
+      <span class="row-icon">💳</span>
+      <span class="row-label">Mis pagos pendientes</span>
+      <span class="row-spacer"></span>
+      <span class="row-count">1</span>
+      <span class="row-arrow">›</span>
+    </a>
+
+    <a class="account-row" href="#">
+      <span class="row-icon">📦</span>
+      <span class="row-label">Envíos y direcciones</span>
+      <span class="row-spacer"></span>
+      <span class="row-arrow">›</span>
+    </a>
+
+    <a class="account-row" href="#">
+      <span class="row-icon">🏆</span>
+      <span class="row-label">Nivel</span>
+      <span class="row-spacer"></span>
+      <span class="row-arrow">›</span>
+    </a>
+
+    <a class="account-row" href="#">
+      <span class="row-icon">🧾</span>
+      <span class="row-label">Datos fiscales</span>
+      <span class="row-spacer"></span>
+      <span class="row-arrow">›</span>
+    </a>
+
+    <a class="account-row" href="#">
+      <span class="row-icon">❤️</span>
+      <span class="row-label">Favoritos</span>
+      <span class="row-spacer"></span>
+      <span class="row-arrow">›</span>
+    </a>
+
+    <a class="account-row" href="#">
+      <span class="row-icon">🔔</span>
+      <span class="row-label">Notificaciones</span>
+      <span class="row-spacer"></span>
+      <span class="row-count">3</span>
+      <span class="row-arrow">›</span>
+    </a>
+
+    <a class="account-row" href="#">
+      <span class="row-icon">🔐</span>
+      <span class="row-label">Seguridad y sesiones</span>
+      <span class="row-spacer"></span>
+      <span class="row-arrow">›</span>
+    </a>
+
+    <a class="account-row" href="#">
+      <span class="row-icon">❓</span>
+      <span class="row-label">Ayuda y soporte</span>
+      <span class="row-spacer"></span>
+      <span class="row-arrow">›</span>
+    </a>
+
+  </section>
+
+  <footer class="mn-bottom">
+    <button class="logout">Cerrar sesión</button>
+  </footer>
+
+  <div class="preview-note">
+    <strong>PREVIEW VISUAL:</strong> maqueta independiente, sin conexión con API, sesiones ni Google Sheets.
+    Los datos y contadores son demostrativos.
+  </div>
+
+</main>
+</body>
+</html>
